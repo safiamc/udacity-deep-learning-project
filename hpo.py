@@ -13,10 +13,6 @@ import logging
 import os
 import sys
 
-from smdebug import modes
-from smdebug.profiler.utils import str2bool
-from smdebug.pytorch import get_hook
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -24,15 +20,13 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-def test(model, test_loader, criterion, device, hook):
+def test(model, test_loader, criterion, device):
     '''
     TODO: Complete this function that can take a model and a 
           testing data loader and will get the test accuray/loss of the model
           Remember to include any debugging/profiling hooks that you might need
     '''
-    model.eval()
-    hook.set_mode(smd.modes.EVAL)
-    
+    model.eval()    
     test_loss = 0
     correct = 0
     with torch.no_grad():
@@ -53,7 +47,7 @@ def test(model, test_loader, criterion, device, hook):
         )
     )
 
-def train(model, train_loader, validation_loader, criterion, optimizer, epochs, device, hook):
+def train(model, train_loader, validation_loader, criterion, optimizer, epochs, device):
     '''
     TODO: Complete this function that can take a model and
           data loaders for training and will get train the model
@@ -62,16 +56,13 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
     best_loss=1e6
     image_dataset={'train':train_loader, 'valid':validation_loader}
     loss_counter=0
-    hook.register_loss(criterion)
     for epoch in range(epochs):
         for phase in ['train', 'valid']:
             print(f"Epoch {epoch}, Phase {phase}")
             if phase=='train':
                 model.train()
-                hook.set_mode(smd.modes.TRAIN)
             else:
                 model.eval()
-                hook.set_mode(smd.modes.EVAL)
             running_loss = 0.0
             running_corrects = 0
             running_samples=0
@@ -194,7 +185,6 @@ def main(args):
     optimizer = optim.Adam(model.fc.parameters(), lr = args.lr )
     batch_size=args.batch_size
     epochs=args.epochs
-    hook=get_hook(create_if_not_exists=True)
     train_loader, validation_loader, test_loader = create_data_loaders(args.data_dir, batch_size)
     
     '''
@@ -202,13 +192,13 @@ def main(args):
     Remember that you will need to set up a way to get training data from S3
     '''
     logger.info("Training the model")
-    model=train(model, train_loader, validation_loader, loss_criterion, optimizer, epochs, device, hook)
+    model=train(model, train_loader, validation_loader, loss_criterion, optimizer, epochs, device)
     
     '''
     TODO: Test the model to see its accuracy
     '''
     logger.info("Testing the model")
-    test(model, test_loader, loss_criterion, device, hook)
+    test(model, test_loader, loss_criterion, device)
     
     '''
     TODO: Save the trained model
