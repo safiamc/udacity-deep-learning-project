@@ -143,7 +143,7 @@ def create_data_loaders(data, batch_size):
         ]
     )
     test_transform = transforms.Compose(
-        [transforms.Resize(224),
+        [transforms.Resize(224,224),
          transforms.ToTensor()
         ]
     )
