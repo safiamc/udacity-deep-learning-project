@@ -35,17 +35,14 @@ def test(model, test_loader, criterion, device):
             target=target.to(device)
             output = model(data)
             loss = criterion(output, target)
-            test_loss += loss.item() * data.size(0)
-            pred = output.argmax(1, keepdim=True)[1]
-            correct += pred.eq(target.view_as(pred)).sum().item()
-            
+            _, preds = torch.max(outputs, 1)
+            test_loss += loss.item() * inputs.size(0)
+            correct += torch.sum(preds == labels.data)
 
-    test_loss /= len(test_loader.dataset)
-    logger.info(
-        "Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n".format(
-            test_loss, correct, len(test_loader.dataset), 100.0 * correct / len(test_loader.dataset)
-        )
-    )
+    total_loss = test_loss // len(test_loader)
+    total_acc = correct // len(test_loader)
+    
+    logger.info(f"Test set: Average loss: {total_loss:.4f}, Accuracy: {total_acc:.4f}")
 
 def train(model, train_loader, validation_loader, criterion, optimizer, epochs, device):
     '''
@@ -67,7 +64,7 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
             running_corrects = 0
             running_samples=0
 
-            for step, (inputs, labels) in enumerate(image_dataset[phase]):
+            for inputs, labels in image_dataset[phase]:
                 inputs=inputs.to(device)
                 labels=labels.to(device)
                 outputs = model(inputs)
@@ -99,8 +96,8 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
             logger.info(f"\nEpoch {epoch}, Phase {phase}")
             logger.info(f"\nBest Loss: {best_loss:.4f}, Phase Loss: {phase_loss:.4f}, Phase Accuracy: {phase_acc:.4f}") 
             if phase=='valid':
-                if epoch_loss<best_loss:
-                    best_loss=epoch_loss
+                if phase_loss<best_loss:
+                    best_loss=phase_loss
     return model
 
 
@@ -114,11 +111,10 @@ def net():
         param.requires_grad = False
         
     num_features = model.fc.in_features
-    model.fc = nn.Sequential(nn.Linear(num_features, 200),
-                             nn.ReLU(),
-                             nn.Linear(200, 133),
-                             nn.Softmax()
-                            )
+    model.fc = nn.Sequential(nn.Linear(num_features, 512),
+                             nn.ReLU(inplace=True),
+                             nn.Linear(512, 133),
+                             )
     return model
     
 def create_data_loaders(data, batch_size):
@@ -153,11 +149,12 @@ def main(args):
     '''
     TODO: Initialize a model by calling the net function
     '''
-    model=net()
+    
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(f"Running on Device {device}")
+    logger.info(f"Running on Device {device}")
     for key, value in vars(args).items():
         logger.info(f"{key}:{value}")
+    model=net()
     model=model.to(device)
     '''
     TODO: Create your loss and optimizer
@@ -195,11 +192,12 @@ if __name__=='__main__':
     TODO: Specify all the hyperparameters you need to use to train your model.
     '''
     parser.add_argument("--batch_size", type=int, default=64, metavar = "N")
-    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--epochs", type=int, default=2, metavar="N")
     parser.add_argument("--lr", type=float, default=0.1, metavar = "LR")
     parser.add_argument("--model", type=str, default="resnet50")
-    parser.add_argument("--model_dir", type=str, default=os.environ["SM_MODEL_DIR"] )
+    parser.add_argument("--model_dir", type=str, default=os.environ['SM_MODEL_DIR'] )
     parser.add_argument("--data_dir", type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--output_dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
     
     args=parser.parse_args()
     
