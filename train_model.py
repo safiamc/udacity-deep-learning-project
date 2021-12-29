@@ -164,13 +164,13 @@ def main(args):
     Remember that you will need to set up a way to get training data from S3
     '''
     logger.info("Training the model")
-    model=train(model, train_loader, validation_loader, criterion, optimizer, epochs, hook)
+    model=train(model, train_loader, validation_loader, loss_criterion, optimizer, epochs, hook)
     
     '''
     TODO: Test the model to see its accuracy
     '''
     logger.info("Testing the model")
-    test(model, test_loader, criterion, hook)
+    test(model, test_loader, loss_criterion, hook)
     
     '''
     TODO: Save the trained model
