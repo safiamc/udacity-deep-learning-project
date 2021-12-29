@@ -55,7 +55,6 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
     loss_counter=0
     for epoch in range(epochs):
         for phase in ['train', 'valid']:
-            print(f"Epoch {epoch}, Phase {phase}")
             if phase=='train':
                 model.train()
             else:
