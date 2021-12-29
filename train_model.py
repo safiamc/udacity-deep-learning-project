@@ -40,20 +40,17 @@ def test(model, test_loader, criterion, hook):
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            output = model(data)
-            loss = criterion(output, target)
+            outputs = model(data)
+            loss = criterion(outputs, target)
+            _, preds = torch.max(outputs, 1)
             test_loss += loss.item() * data.size(0)
-            pred = output.argmax(1, keepdim=True)[1]
-            correct += pred.eq(target.view_as(pred)).sum().item()
-            
+            correct += torch.sum(preds == target.data).item()
 
-    test_loss /= len(test_loader.dataset)
-    logger.info(
-        "Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n".format(
-            test_loss, correct, len(test_loader.dataset), 100.0 * correct / len(test_loader.dataset)
-        )
-    )
-
+    total_loss = test_loss / len(test_loader.dataset)
+    total_acc = correct / len(test_loader.dataset)
+    
+    logger.info(f"Test set: Average loss: {total_loss:.2f}, Accuracy: {total_acc:.2f}")
+    
 def train(model, train_loader, validation_loader, criterion, optimizer, epochs, hook):
     '''
     TODO: Complete this function that can take a model and
@@ -66,7 +63,6 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
     hook.register_loss(criterion)
     for epoch in range(epochs):
         for phase in ['train', 'valid']:
-            print(f"Epoch {epoch}, Phase {phase}")
             if phase=='train':
                 model.train()
                 hook.set_mode(smd.modes.TRAIN)
@@ -77,7 +73,7 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
             running_corrects = 0
             running_samples=0
 
-            for step, (inputs, labels) in enumerate(image_dataset[phase]):
+            for inputs, labels in image_dataset[phase]:
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
 
@@ -89,26 +85,14 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data).item()
-                running_samples+=len(inputs)
-                if running_samples % 2000  == 0:
-                    accuracy = running_corrects/running_samples
-                    print("Images [{}/{} ({:.0f}%)] Loss: {:.2f} Accuracy: {}/{} ({:.2f}%)".format(
-                            running_samples,
-                            len(image_dataset[phase].dataset),
-                            100.0 * (running_samples / len(image_dataset[phase].dataset)),
-                            loss.item(),
-                            running_corrects,
-                            running_samples,
-                            100.0*accuracy,
-                        )
-                    )
-            phase_loss = running_loss / running_samples
-            phase_acc = running_corrects / running_samples
+                
+            phase_loss = running_loss / len(image_dataset[phase].dataset)
+            phase_acc = running_corrects / len(image_dataset[phase].dataset)
             logger.info(f"\nEpoch {epoch}, Phase {phase}")
-            logger.info(f"\nBest Loss: {best_loss:.4f}, Phase Loss: {phase_loss:.4f}, Phase Accuracy: {phase_acc:.4f}") 
+            logger.info(f"\nBest Loss: {best_loss:.2f}, Phase Loss: {phase_loss:.2f}, Phase Accuracy: {phase_acc:.2f}") 
             if phase=='valid':
-                if epoch_loss<best_loss:
-                    best_loss=epoch_loss
+                if phase_loss<best_loss:
+                    best_loss=phase_loss
     return model
   
 def net():
@@ -121,11 +105,10 @@ def net():
         param.requires_grad = False
         
     num_features = model.fc.in_features
-    model.fc = nn.Sequential(nn.Linear(num_features, 200),
-                             nn.ReLU(),
-                             nn.Linear(200, 133),
-                             nn.Softmax()
-                            )
+    model.fc = nn.Sequential(nn.Linear(num_features, 512),
+                             nn.ReLU(inplace=True),
+                             nn.Linear(512, 133),
+                             )
     return model
 
 def create_data_loaders(data, batch_size):
@@ -138,35 +121,25 @@ def create_data_loaders(data, batch_size):
     test_data_path=os.path.join(data, 'test')
     
     train_transform = transforms.Compose(
-        [transforms.RandomResizedCrop(224),
-         transforms.RandomRotation(45),
+        [transforms.RandomResizedCrop((224,224)),
          transforms.RandomHorizontalFlip(),
          transforms.ToTensor()
         ]
     )
     test_transform = transforms.Compose(
-        [transforms.Resize(224),
+        [transforms.Resize((224,224)),
          transforms.ToTensor()
         ]
     )
-    train_set = torchvision.datasets.ImageFolder(root=train_data_path, train=True, transform=train_transform)
-    train_loader = torch.utils.data.DataLoader(
-        train_set,
-        batch_size=batch_size,
-        shuffle=True
-    )
-    valid_set = torchvision.datasets.ImageFolder(root=valid_data_path, train=False, transform = test_transform)
-    valid_loader = torch.utils.data.DataLoader(
-        valid_set,
-        batch_size=batch_size,
-        shuffle=False
-    )
-    test_set = torchvision.datasets.ImageFolder(root=test_data_path, train=False, transform = test_transform)
-    test_loader = torch.utils.data.DataLoader(
-        test_set,
-        batch_size=batch_size,
-        shuffle=False
-    )
+    train_data = torchvision.datasets.ImageFolder(root=train_data_path, transform=train_transform)
+    train_data_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
+
+    test_data = torchvision.datasets.ImageFolder(root=test_data_path, transform=test_transform)
+    test_data_loader  = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
+
+    validation_data = torchvision.datasets.ImageFolder(root=validation_data_path, transform=test_transform)
+    validation_data_loader  = torch.utils.data.DataLoader(validation_data, batch_size=batch_size) 
+    
     return train_loader, validation_loader, test_loader
 
 def main(args):
@@ -211,14 +184,14 @@ if __name__=='__main__':
     '''
     TODO: Specify any training args that you might need
     '''
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--epochs", type=int, default=2)
-    parser.add_argument("--lr", type=float, default=0.1)
+    parser.add_argument("--batch_size", type=int, default=64, metavar = "N")
+    parser.add_argument("--epochs", type=int, default=2, metavar="N")
+    parser.add_argument("--lr", type=float, default=0.1, metavar = "LR")
     parser.add_argument("--model", type=str, default="resnet50")
-    parser.add_argument("--model_dir", type=str, default=os.environ["SM_MODEL_DIR"] )
-    parser.add_argument("--data_dir", type=str, default= os.environ["SM_CHANNEL_TRAINING"])
-    
-    
+    parser.add_argument("--model_dir", type=str, default=os.environ['SM_MODEL_DIR'] )
+    parser.add_argument("--data_dir", type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--output_dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
+        
     args=parser.parse_args()
     
     main(args)
