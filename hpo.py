@@ -136,14 +136,13 @@ def create_data_loaders(data, batch_size):
     test_data_path=os.path.join(data, 'test')
     
     train_transform = transforms.Compose(
-        [transforms.RandomResizedCrop(224),
-         transforms.RandomRotation(45),
+        [transforms.RandomResizedCrop((224,224)),
          transforms.RandomHorizontalFlip(),
          transforms.ToTensor()
         ]
     )
     test_transform = transforms.Compose(
-        [transforms.Resize(224,224),
+        [transforms.Resize((224,224)),
          transforms.ToTensor()
         ]
     )
