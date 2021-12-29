@@ -132,13 +132,13 @@ def create_data_loaders(data, batch_size):
         ]
     )
     train_data = torchvision.datasets.ImageFolder(root=train_data_path, transform=train_transform)
-    train_data_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
     test_data = torchvision.datasets.ImageFolder(root=test_data_path, transform=test_transform)
-    test_data_loader  = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
+    test_loader  = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
 
     validation_data = torchvision.datasets.ImageFolder(root=validation_data_path, transform=test_transform)
-    validation_data_loader  = torch.utils.data.DataLoader(validation_data, batch_size=batch_size) 
+    validation_loader  = torch.utils.data.DataLoader(validation_data, batch_size=batch_size) 
     
     return train_loader, validation_loader, test_loader
 
