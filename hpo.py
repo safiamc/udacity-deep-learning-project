@@ -33,16 +33,16 @@ def test(model, test_loader, criterion, device):
         for data, target in test_loader:
             data=data.to(device)
             target=target.to(device)
-            output = model(data)
-            loss = criterion(output, target)
+            outputs = model(data)
+            loss = criterion(outputs, target)
             _, preds = torch.max(outputs, 1)
-            test_loss += loss.item() * inputs.size(0)
-            correct += torch.sum(preds == labels.data)
+            test_loss += loss.item() * data.size(0)
+            correct += torch.sum(preds == target.data).item()
 
-    total_loss = test_loss // len(test_loader)
-    total_acc = correct // len(test_loader)
+    total_loss = test_loss / len(test_loader.dataset)
+    total_acc = correct / len(test_loader.dataset)
     
-    logger.info(f"Test set: Average loss: {total_loss:.4f}, Accuracy: {total_acc:.4f}")
+    logger.info(f"Test set: Average loss: {total_loss:.2f}, Accuracy: {total_acc:.2f}")
 
 def train(model, train_loader, validation_loader, criterion, optimizer, epochs, device):
     '''
@@ -77,24 +77,24 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
 
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
-                running_corrects += torch.sum(preds == labels.data).item()
-                running_samples+=len(inputs)
-                if running_samples % 2000  == 0:
-                    accuracy = running_corrects/running_samples
-                    print("Images [{}/{} ({:.0f}%)] Loss: {:.2f} Accuracy: {}/{} ({:.2f}%)".format(
-                            running_samples,
-                            len(image_dataset[phase].dataset),
-                            100.0 * (running_samples / len(image_dataset[phase].dataset)),
-                            loss.item(),
-                            running_corrects,
-                            running_samples,
-                            100.0*accuracy,
-                        )
-                    )
-            phase_loss = running_loss / running_samples
-            phase_acc = running_corrects / running_samples
+                running_corrects += torch.sum(preds == labels.data)
+                #running_samples+=len(inputs)
+                #if running_samples % 2000  == 0:
+                    #accuracy = running_corrects/running_samples
+                    #print("Images [{}/{} ({:.0f}%)] Loss: {:.2f} Accuracy: {}/{} ({:.2f}%)".format(
+                            #running_samples,
+                            #len(image_dataset[phase].dataset),
+                            #100.0 * (running_samples / len(image_dataset[phase].dataset)),
+                            #loss.item(),
+                            #running_corrects,
+                            #running_samples,
+                            #100.0*accuracy,
+                        #)
+                    #)
+            phase_loss = running_loss / len(image_dataset[phase].dataset)
+            phase_acc = running_corrects / len(image_dataset[phase].dataset)
             logger.info(f"\nEpoch {epoch}, Phase {phase}")
-            logger.info(f"\nBest Loss: {best_loss:.4f}, Phase Loss: {phase_loss:.4f}, Phase Accuracy: {phase_acc:.4f}") 
+            logger.info(f"\nBest Loss: {best_loss:.2f}, Phase Loss: {phase_loss:.2f}, Phase Accuracy: {phase_acc:.2f}") 
             if phase=='valid':
                 if phase_loss<best_loss:
                     best_loss=phase_loss
