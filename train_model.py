@@ -16,6 +16,7 @@ import sys
 from smdebug import modes
 from smdebug.profiler.utils import str2bool
 from smdebug.pytorch import get_hook
+import smdebug.pytorch as smd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
