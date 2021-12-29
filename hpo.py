@@ -146,19 +146,19 @@ def create_data_loaders(data, batch_size):
          transforms.ToTensor()
         ]
     )
-    train_set = torchvision.datasets.ImageFolder(root=train_data_path, train=True, transform=train_transform)
+    train_set = torchvision.datasets.ImageFolder(root=train_data_path, transform=train_transform)
     train_loader = torch.utils.data.DataLoader(
         train_set,
         batch_size=batch_size,
         shuffle=True
     )
-    valid_set = torchvision.datasets.ImageFolder(root=valid_data_path, train=False, transform = test_transform)
+    valid_set = torchvision.datasets.ImageFolder(root=valid_data_path, transform = test_transform)
     valid_loader = torch.utils.data.DataLoader(
         valid_set,
         batch_size=batch_size,
         shuffle=False
     )
-    test_set = torchvision.datasets.ImageFolder(root=test_data_path, train=False, transform = test_transform)
+    test_set = torchvision.datasets.ImageFolder(root=test_data_path, transform = test_transform)
     test_loader = torch.utils.data.DataLoader(
         test_set,
         batch_size=batch_size,
