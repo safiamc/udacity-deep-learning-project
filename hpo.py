@@ -103,12 +103,7 @@ def train(model, train_loader, validation_loader, criterion, optimizer, epochs, 
                     best_loss=epoch_loss
     return model
 
-def model_fn(model_dir):
-    model = Net()
-    with open(os.path.join(model_dir, "model.pth"), "rb") as f:
-        model.load_state_dict(torch.load(f))
-    return model
-    
+
 def net():
     '''
     TODO: Complete this function that initializes your model
@@ -127,45 +122,32 @@ def net():
     return model
     
 def create_data_loaders(data, batch_size):
-    '''
-    This is an optional function that you may or may not need to implement
-    depending on whether you need to use data loaders or not
-    '''
-    train_data_path = os.path.join(data, 'train')
+    
+    train_data_path = os.path.join(data, 'train') 
+    test_data_path = os.path.join(data, 'test')
     validation_data_path=os.path.join(data, 'valid')
-    test_data_path=os.path.join(data, 'test')
     
-    train_transform = transforms.Compose(
-        [transforms.RandomResizedCrop((224,224)),
-         transforms.RandomHorizontalFlip(),
-         transforms.ToTensor()
-        ]
-    )
-    test_transform = transforms.Compose(
-        [transforms.Resize((224,224)),
-         transforms.ToTensor()
-        ]
-    )
-    train_set = torchvision.datasets.ImageFolder(root=train_data_path, transform=train_transform)
-    train_loader = torch.utils.data.DataLoader(
-        train_set,
-        batch_size=batch_size,
-        shuffle=True
-    )
-    valid_set = torchvision.datasets.ImageFolder(root=valid_data_path, transform = test_transform)
-    valid_loader = torch.utils.data.DataLoader(
-        valid_set,
-        batch_size=batch_size,
-        shuffle=False
-    )
-    test_set = torchvision.datasets.ImageFolder(root=test_data_path, transform = test_transform)
-    test_loader = torch.utils.data.DataLoader(
-        test_set,
-        batch_size=batch_size,
-        shuffle=False
-    )
-    return train_loader, validation_loader, test_loader
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        ])
+                                                            
+    test_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        ])
+
+    train_data = torchvision.datasets.ImageFolder(root=train_data_path, transform=train_transform)
+    train_data_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
+
+    test_data = torchvision.datasets.ImageFolder(root=test_data_path, transform=test_transform)
+    test_data_loader  = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
+
+    validation_data = torchvision.datasets.ImageFolder(root=validation_data_path, transform=test_transform)
+    validation_data_loader  = torch.utils.data.DataLoader(validation_data, batch_size=batch_size) 
     
+    return train_data_loader, validation_data_loader, test_data_loader 
 
 def main(args):
     '''
@@ -212,12 +194,12 @@ if __name__=='__main__':
     '''
     TODO: Specify all the hyperparameters you need to use to train your model.
     '''
-    parser.add_argument("--batch_size", type=int, default=64)
+    parser.add_argument("--batch_size", type=int, default=64, metavar = "N")
     parser.add_argument("--epochs", type=int, default=2)
-    parser.add_argument("--lr", type=float, default=0.1)
+    parser.add_argument("--lr", type=float, default=0.1, metavar = "LR")
     parser.add_argument("--model", type=str, default="resnet50")
     parser.add_argument("--model_dir", type=str, default=os.environ["SM_MODEL_DIR"] )
-    parser.add_argument("--data_dir", type=str, default="s3://sagemaker-us-east-1-755391689112/dogImages/")
+    parser.add_argument("--data_dir", type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     args=parser.parse_args()
     
