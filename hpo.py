@@ -218,7 +218,7 @@ if __name__=='__main__':
     parser.add_argument("--lr", type=float, default=0.1)
     parser.add_argument("--model", type=str, default="resnet50")
     parser.add_argument("--model_dir", type=str, default=os.environ["SM_MODEL_DIR"] )
-    parser.add_argument("--data_dir", type=str, default= os.environ["SM_CHANNEL_TRAINING"])
+    parser.add_argument("--data_dir", type=str, default="s3://sagemaker-us-east-1-755391689112/dogImages/")
     
     args=parser.parse_args()
     
