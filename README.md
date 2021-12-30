@@ -8,7 +8,7 @@ The data set was already split into train, validation, and test sets, each consi
 ## Hyperparameter Tuning
 I chose to use a pretrained ResNet50 model, with two fully-connected layers. I chose to tune the following hyperparameters: batch size, learning rate, and number of epochs. In the future, I wouldn't include the number of epochs. I believe the results were heavily skewed towards the models with more epochs, almost regardless of the other hyperparameters.
 
-I used the script 'hpo.py' as the entry point for my tuning job, and I trained 8 jobs total.
+I used the script 'hpo.py' as the entry point for my tuning job, and I trained 8 jobs total. You can see that this took a long time!
 
 ![hyperparameter tuning job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(17).png)
 
@@ -20,11 +20,9 @@ The worst job ran for 2 epochs,had a batch size of 32, and a learning rate of ap
 
 ![worst job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(19).png)
 
-Remember that your README should:
-- Include a screenshot of completed training jobs
-- Logs metrics during the training process
-- Tune at least two hyperparameters
-- Retrieve the best best hyperparameters from all your training jobs
+## Model Finetuning
+
+Using the best hyperparameters, I finetuned the pretrained ResNet50 model. I used the script 'train_model.py' as the entry point for my finetuning job.
 
 ## Debugging and Profiling
 **TODO**: Give an overview of how you performed model debugging and profiling in Sagemaker
