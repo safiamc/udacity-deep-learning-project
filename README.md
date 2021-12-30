@@ -50,14 +50,15 @@ To deploy the model, I created an endpoint using the script `inference.py` as th
 I used images of an Akita, a Bernese mountain dog, and a Greyhound as test images. I used the boto3 client to read the file names in 'dogImages/train' into a list of dog names, to check my inferences.
 
 ![Akita](https://upload.wikimedia.org/wikipedia/commons/7/78/Akita_inu.jpeg)
+
 The largest number in the response vector to this image was in index 3, which corresponds to the Akita. The model correctly predicted the breed of this dog.
 
 ![Bernese](https://vetstreet-brightspot.s3.amazonaws.com/39/2750509e8d11e0a2380050568d634f/file/Bernese-Mtn-3-645mk062111.jpg)
+
 The largest number in the response vector to this image was in index 22, which corresponds to the Bernese mountain dog. The model correctly predicted the breed of this dog too.
 
 ![Greyhound](https://2.bp.blogspot.com/_oX_iiKqvHUI/TI-Vs5fBzHI/AAAAAAAAAA8/hzI9XI7sJjI/s1600/greyhound-0005.jpg)
+
 The largest number in the response vector to this image was in index 80, which corresponds to the Greyhound. The model correctly predicted the breed of this dog too!
 
 When I was done testing, I deleted the endpoint.
-## Standout Suggestions
-**TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
