@@ -31,7 +31,11 @@ Within the script, I set a debugger hook to record the Cross Entropy Loss across
 
 As you can see above, the loss decreases more or less uniformly, which is what we hope for! It looks like there isn't much of an advantage to training past 100 steps, so 5 epochs may be overkill. If I saw much more jagged lines, I would first try larger batch sizes, in the hopes that more images trained at a time would smooth out the calculated loss. If I saw loss increasing over time, I would go back to the hyperparameter tuning step, and perhaps start from a different pretrained model.
 
-I also added a profiler to log performance metrics, such as 
+I also added a profiler to log performance metrics, such as low GPU utilization.
+
+![rules summary](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(23).png)
+
+As you can see above, I had low GPU utilization and high CPU utilization, which is why the finetuning job took 1 hour. I used a single instance of type "ml.g4dn.xlarge". In the future, I would increase the batch size and consider using more instances or larger/more powerful ones.
 
 ### Results
 **TODO**: What are the results/insights did you get by profiling/debugging your model?
