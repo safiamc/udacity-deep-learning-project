@@ -34,19 +34,19 @@ As you can see above, the loss decreases more or less uniformly, which is what w
 I also added a profiler to log performance metrics, such as low GPU utilization.
 
 ![rules summary](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(23).png)
+![rules graph](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(24).png)
 
-As you can see above, I had low GPU utilization and high CPU utilization, which is why the finetuning job took 1 hour. I used a single instance of type "ml.g4dn.xlarge". In the future, I would increase the batch size and consider using more instances or larger/more powerful ones.
+As you can see above, I had low GPU utilization, high GPU memory utilization, and high CPU utilization, which is why the finetuning job took 1 hour. I used a single instance of type "ml.g4dn.xlarge". In the future, I would increase the batch size and consider using more instances or larger/more powerful ones.
 
 ### Results
-**TODO**: What are the results/insights did you get by profiling/debugging your model?
-
-**TODO** Remember to provide the profiler html/pdf file in your submission.
-
+I don't believe it was necessary to train my model for 5 epochs, and I think training would have been quicker with a larger batch size. However, the model performed well in validation and testing, so I believe it is ready to deploy.
 
 ## Model Deployment
-**TODO**: Give an overview of the deployed model and instructions on how to query the endpoint with a sample input.
+To deploy the model, I created an endpoint using the script `inference.py` as the entry point. I used a single instance of type ml.m5.large. The endpoint can then be queried to predict dog breed from images.
 
-**TODO** Remember to provide a screenshot of the deployed active endpoint in Sagemaker.
+## Endpoint Use
+I found 
+
 
 ## Standout Suggestions
 **TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
