@@ -1,12 +1,24 @@
 # Image Classification using AWS SageMaker
 
-In this project, I used AWS Sagemaker to train a pretrained image-classification model on a dog breed data set provided by Udacity.
+In this project, I used AWS Sagemaker to train an image-classification model on a dog breed data set provided by Udacity.
 
 ## Project Set Up
-I uploaded the data set to an S3 bucket. 
+The data set was already split into train, validation, and test sets, each consisting of folders of images labelled with one of 133 different breeds of dog. I uploaded the datasets to S3.
 
 ## Hyperparameter Tuning
-What kind of model did you choose for this experiment and why? Give an overview of the types of parameters and their ranges used for the hyperparameter search
+I chose to use a pretrained ResNet50 model, with two fully-connected layers. I chose to tune the following hyperparameters: batch size, learning rate, and number of epochs. In the future, I wouldn't include the number of epochs. I believe the results were heavily skewed towards the models with more epochs, almost regardless of the other hyperparameters.
+
+I used the script 'hpo.py' as the entry point for my tuning job, and I trained 8 jobs total.
+
+![hyperparameter tuning job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(17).png)
+
+The best job ran for 5 epochs,had a batch size of 128, and a learning rate of approx. .001
+
+![best job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(18).png)
+
+The worst job ran for 2 epochs,had a batch size of 32, and a learning rate of approx. .022
+
+![worst job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(19).png)
 
 Remember that your README should:
 - Include a screenshot of completed training jobs
