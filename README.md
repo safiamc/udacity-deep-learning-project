@@ -8,24 +8,30 @@ The data set was already split into train, validation, and test sets, each consi
 ## Hyperparameter Tuning
 I chose to use a pretrained ResNet50 model, with two fully-connected layers. I chose to tune the following hyperparameters: batch size, learning rate, and number of epochs. In the future, I wouldn't include the number of epochs. I believe the results were heavily skewed towards the models with more epochs, almost regardless of the other hyperparameters.
 
-I used the script 'hpo.py' as the entry point for my tuning job, and I trained 8 jobs total. You can see that this took a long time!
+I used the script `hpo.py` as the entry point for my tuning job, and I trained 8 jobs total. You can see that this took a long time!
 
-![hyperparameter tuning job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(17).png)
+![hyperparameter tuning job](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(17).png)
 
-The best job ran for 5 epochs,had a batch size of 128, and a learning rate of approx. .001
+The best job ran for 5 epochs, had a batch size of 128, and a learning rate of approximately .001
 
-![best job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(18).png)
+![best job](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(18).png)
 
-The worst job ran for 2 epochs,had a batch size of 32, and a learning rate of approx. .022
+The worst job ran for 2 epochs, had a batch size of 32, and a learning rate of approximately .022
 
-![worst job](https://github.com/safiamc/udacity-deep-learning-project/blob/d04595f7fb8206b002ee9f43429c31e46e5a8361/Screenshot%20(19).png)
+![worst job](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(19).png)
 
 ## Model Finetuning
 
-Using the best hyperparameters, I finetuned the pretrained ResNet50 model. I used the script 'train_model.py' as the entry point for my finetuning job.
+Using the best hyperparameters, I finetuned the pretrained ResNet50 model. I used the script `train_model.py` as the entry point for my finetuning job.
 
 ## Debugging and Profiling
-**TODO**: Give an overview of how you performed model debugging and profiling in Sagemaker
+Within the script, I set a debugger hook to record the Cross Entropy Loss across training and validation through each epoch.
+
+![cross entropy loss](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(22).png)
+
+As you can see above, the loss decreases more or less uniformly, which is what we hope for! It looks like there isn't much of an advantage to training past 100 steps, so 5 epochs may be overkill. If I saw much more jagged lines, I would first try larger batch sizes, in the hopes that more images trained at a time would smooth out the calculated loss. If I saw loss increasing over time, I would go back to the hyperparameter tuning step, and perhaps start from a different pretrained model.
+
+I also added a profiler to log performance metrics, such as 
 
 ### Results
 **TODO**: What are the results/insights did you get by profiling/debugging your model?
