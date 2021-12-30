@@ -58,6 +58,6 @@ The largest number in the response vector to this image was in index 22, which c
 ![Greyhound](https://2.bp.blogspot.com/_oX_iiKqvHUI/TI-Vs5fBzHI/AAAAAAAAAA8/hzI9XI7sJjI/s1600/greyhound-0005.jpg)
 The largest number in the response vector to this image was in index 80, which corresponds to the Greyhound. The model correctly predicted the breed of this dog too!
 
-
+When I was done testing, I deleted the endpoint.
 ## Standout Suggestions
 **TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
