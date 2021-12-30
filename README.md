@@ -44,8 +44,19 @@ I don't believe it was necessary to train my model for 5 epochs, and I think tra
 ## Model Deployment
 To deploy the model, I created an endpoint using the script `inference.py` as the entry point. I used a single instance of type ml.m5.large. The endpoint can then be queried to predict dog breed from images.
 
+![endpoint](https://github.com/safiamc/udacity-deep-learning-project/blob/main/Screenshot%20(25).png)
+
 ## Endpoint Use
-I found 
+I used images of an Akita, a Bernese mountain dog, and a Greyhound as test images. I used the boto3 client to read the file names in 'dogImages/train' into a list of dog names, to check my inferences.
+
+![Akita](https://upload.wikimedia.org/wikipedia/commons/7/78/Akita_inu.jpeg)
+The largest number in the response vector to this image was in index 3, which corresponds to the Akita. The model correctly predicted the breed of this dog.
+
+![Bernese](https://vetstreet-brightspot.s3.amazonaws.com/39/2750509e8d11e0a2380050568d634f/file/Bernese-Mtn-3-645mk062111.jpg)
+The largest number in the response vector to this image was in index 22, which corresponds to the Bernese mountain dog. The model correctly predicted the breed of this dog too.
+
+![Greyhound](https://2.bp.blogspot.com/_oX_iiKqvHUI/TI-Vs5fBzHI/AAAAAAAAAA8/hzI9XI7sJjI/s1600/greyhound-0005.jpg)
+The largest number in the response vector to this image was in index 80, which corresponds to the Greyhound. The model correctly predicted the breed of this dog too!
 
 
 ## Standout Suggestions
